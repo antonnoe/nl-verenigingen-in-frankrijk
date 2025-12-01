@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nederlandse Verenigingen in Frankrijk</title>
+    <style>
+        /* --- STIJL (HOEF JE NIET AAN TE PASSEN) --- */
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background: #fff; }
+        h2 { border-bottom: 2px solid #800000; padding-bottom: 10px; color: #333; margin-top: 40px; }
+        .intro-box { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 5px; margin: 20px 0; }
+        
+        /* Het rooster: zorgt automatisch voor 2 kolommen op pc, 1 op mobiel */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card h3 { color: #800000; margin-top: 0; font-size: 1.1em; min-height: 3em; }
+        .card p { font-size: 13px; margin-bottom: 15px; flex-grow: 1; }
+        
+        .btn-container { margin-top: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+        .knop {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #eee;
+            color: #333;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            transition: background 0.2s;
+        }
+        .knop:hover { background: #ddd; }
+        
+        /* Speciale stijlen voor de toevoeg-kaart */
+        .card.special { background-color: #800000; color: white; }
+        .card.special h3, .card.special p { color: white; }
+        .card.special .knop { background: white; color: #800000; border: none; font-weight: bold; }
+
+        /* Zoekbalk stijl */
+        #searchBar {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<div class="pagina-container">
+    
+    <input type="text" id="searchBar" onkeyup="filterLijst()" placeholder="Zoek op naam, regio of trefwoord...">
+
+    <div class="intro-box">
+        <p><strong>DOEL VAN DIT BERICHT:</strong></p>
+        <p>Dit bericht biedt een overzicht van verenigingen en informele lokale "initiatieven" in diverse regio's in Frankrijk. Ook tref je contactgegevens aan van diverse hulporganisaties.</p>
+        <p><em>Dit bericht wordt jaarlijks in december opnieuw geactualiseerd.</em></p>
+        <p><strong>Is jouw vereniging niet genoemd?</strong> Laat het weten in de reacties, dan voegen we het toe!</p>
+    </div>
+
+    <div id="content-area"></div>
+
+</div>
+
+<script>
+    /* --- BEHEERDER GEDEELTE --- 
+       Hieronder staan de gegevens. Je kunt simpelweg regels toevoegen of aanpassen.
+       Let op de komma's en aanhalingstekens!
+    */
+
+    const verenigingenData = [
+        // --- Rubriek: Regionale Verenigingen ---
+        {
+            categorie: "Regionale Verenigingen",
+            items: [
+                {
+                    naam: "De Nederlandse Vereniging voor Parijs en omgeving",
+                    desc: "Voor alle Nederlanders die hier wonen of werken – permanent of tijdelijk!",
+                    website: "http://www.nlvp.fr/",
+                    email: ""
+                },
+                {
+                    naam: "De Nederlandse Club Côte d'Azur",
+                    desc: "DNC werd in 1959 opgericht en telt ruim 1200 leden. Voor Nederlanders aan de Côte d'Azur en in de Provence.",
+                    website: "http://www.nedazur.org/",
+                    email: "secretariaat@nedazur.org"
+                },
+                {
+                    naam: "Association Néerlandaise du Midi (ANM)",
+                    desc: "De ANM voelt zich 'Thuis in de Provence'. Opgericht in 1981 voor Nederlanders in Var, Alpes-Maritimes, Bouches-du-Rhône, Vaucluse.",
+                    website: "https://www.a-n-m.nl",
+                    email: "secretariaat@a-n-m.com"
+                },
+                {
+                    naam: "Nederlandse Vereniging Languedoc-Roussillon",
+                    desc: "De NVLR bestaat sinds 1994. Organiseert BijPraatLunches en geeft magazine NieuwsNed uit.",
+                    website: "http://www.nvlr.eu",
+                    email: "secretaris@nvlr.eu"
+                },
+                {
+                    naam: "Nederlandse Vereniging Montpellier",
+                    desc: "Ter bevordering van de onderlinge contacten tussen Nederlanders in Montpellier en omstreken.",
+                    website: "https://elsware.wixsite.com/nvm-cnm",
+                    email: "cnm.nvm@orange.fr"
+                },
+                {
+                    naam: "Neerlandia: Toulouse",
+                    desc: "Informeel sinds jaren 1970, officiële vereniging sinds 2010. Voor Nederlandstaligen in en om Toulouse.",
+                    website: "http://www.neerlandia.fr",
+                    email: "contact@neerlandia.fr"
+                },
+                {
+                    naam: "Club Néerlandais en Normandie",
+                    desc: "Contactpersoon: Nicole Schippers (LÉRY)",
+                    website: "",
+                    email: "emjohu@neuf.fr",
+                    emailLabel: "Contact: Nicole"
+                },
+                {
+                    naam: "Nederlandse Vereniging Straatsburg (NVSO)",
+                    desc: "Platform voor onderling contact en assistentie in de Elzas.",
+                    website: "https://www.nvso.info/nvso.html",
+                    email: ""
+                },
+                {
+                    naam: "Cercle Néerlandais (Lille)",
+                    desc: "Gezelligheidsvereniging voor Nederlanders in en om Lille. Al 25+ jaar actief.",
+                    website: "http://www.cercleneerlandais.com",
+                    email: "info@cercleneerlandais.com"
+                },
+                {
+                    naam: "Cercle Pays-Bas en Périgord La Tulipe",
+                    desc: "Opgericht eind 2002, ruim 200 leden. Twee keer per maand gezellige clubborrel.",
+                    website: "http://www.latulipe.net/",
+                    email: "secretaris.latulipe@latulipe.net"
+                },
+                {
+                    naam: "RDVBergerac",
+                    desc: "Informele groep voor maandelijkse ontmoetingen met maaltijd in Bergerac.",
+                    website: "",
+                    email: "meetbergerac@gmail.com",
+                    emailLabel: "Aanmelden"
+                },
+                {
+                    naam: "LOTgenoten",
+                    desc: "Zeer informatieve website voor Nederlanders in de Lot, Lot et Garonne en Dordogne.",
+                    website: "http://www.lotgenoten.fr/",
+                    email: "info@lotgenoten.fr"
+                },
+                {
+                    naam: "PRAATJE (Toulouse)",
+                    desc: "Vereniging voor Nederlandse taal- en cultuuronderwijs. Organiseert o.a. Nederlandse School.",
+                    website: "https://www.praatje.fr",
+                    email: "info@praatje.fr"
+                },
+                {
+                    naam: "Association des Amis de Drop of Stroopwafels",
+                    desc: "Geen vereniging maar een leuk tijdschrift. Mooie manier om verbonden te blijven.",
+                    website: "http://lesamisdedrop.fr",
+                    email: "administratie@lesamisdedrop.fr",
+                    emailLabel: "Aanmelden"
+                },
+                {
+                    naam: "Cercle Néerlandais Catalunya",
+                    desc: "Voor meer informatie over deze club kunt u contact opnemen.",
+                    website: "",
+                    email: "cneerlandaisc@neuf.fr"
+                },
+                {
+                    naam: "Bourgondische Zaken",
+                    desc: "Geen vereniging, wel een leuk tijdschrift voor mensen in die regio.",
+                    website: "http://www.bourgondischezaken.com/home/",
+                    email: ""
+                },
+                {
+                    naam: "Association Néerlandaise du Pays de Gex",
+                    desc: "Contactpersoon: W.Bakker (Divonne – les Bains).",
+                    website: "",
+                    email: "wimbakker54@gmail.com",
+                    emailLabel: "Contact: W.Bakker"
+                },
+                {
+                    naam: "Crefnec - Combrailles",
+                    desc: "Multinationale vereniging. Voertaal is Frans, leden wonen in de Combrailles regio.",
+                    website: "https://www.lescopainseuropeensdescombrailles.eu/",
+                    email: "vogelfree@orange.fr"
+                }
+            ]
+        },
+        // --- Rubriek: Zakelijke Verenigingen ---
+        {
+            categorie: "Zakelijke Verenigingen",
+            items: [
+                {
+                    naam: "DBCRA (Dutch Business Club Rhône Alpes)",
+                    desc: "Voor zakelijke contacten en activiteiten in Rhône Alpes. Opgericht 2013.",
+                    website: "https://dbcra.nl/",
+                    email: "info@dbcra.nl"
+                },
+                {
+                    naam: "NZGF (Nederlandse Zakengemeenschap)",
+                    desc: "De Nederlandse Zakengemeenschap in Frankrijk voor netwerking.",
+                    website: "http://www.nzgf.fr",
+                    email: "nzgf@nzgf.fr"
+                }
+            ]
+        },
+        // --- Rubriek: Hulporganisaties ---
+        {
+            categorie: "Hulporganisaties",
+            items: [
+                {
+                    naam: "ANEAS - Onderlinge Hulpverlening",
+                    desc: "Ondersteuning aan Nederlanders in Frankrijk die hulp nodig hebben.",
+                    website: "http://www.aneas.fr",
+                    email: "contact@aneas.fr"
+                },
+                {
+                    naam: "France Advies",
+                    desc: "Gratis advies voor Nederlanders en Vlamingen bij praktische problemen.",
+                    website: "https://www.franceadvies.fr",
+                    email: "franceadvies@gmail.com"
+                },
+                {
+                    naam: "Nederlands Ondersteuningsfonds",
+                    desc: "Helpt landgenoten met financiële of sociale problemen in Zuid-Frankrijk.",
+                    website: "http://www.nederlandsondersteuningsfonds.fr",
+                    email: "nlondersteuningsfonds@gmail.com"
+                },
+                {
+                    naam: "FANF - Federatie",
+                    desc: "De koepelorganisatie van Nederlandse verenigingen in Frankrijk.",
+                    website: "http://www.fanf.fr/",
+                    email: ""
+                },
+                {
+                    naam: "CLCV - Consumentenrecht",
+                    desc: "Maria Jacobs helpt met consumentenrecht wanneer bedrijf in Frankrijk gevestigd is.",
+                    website: "https://vendee.clcv.org/in-het-nederlands",
+                    email: "juridique@clcv85.com",
+                    emailLabel: "Juridisch contact"
+                }
+            ]
+        },
+        // --- Rubriek: Collectiviteitsvoordeel ---
+        {
+            categorie: "Collectiviteitsvoordeel",
+            items: [
+                {
+                    naam: "CMUnf - Collectieve Mutuelle",
+                    desc: "Faciliteert collectieve ziektekostenverzekeringen voor Nederlanders in Frankrijk.",
+                    website: "https://cmunf.fr/",
+                    email: ""
+                }
+            ]
+        }
+    ];
+
+    /* --- FUNCTIE DIE DE HTML BOUWT (HOEF JE NIET AAN TE PASSEN) --- */
+    function renderPage() {
+        const container = document.getElementById('content-area');
+        container.innerHTML = '';
+
+        verenigingenData.forEach(sectie => {
+            // Maak de titel van de sectie
+            const title = document.createElement('h2');
+            title.textContent = sectie.categorie;
+            container.appendChild(title);
+
+            // Maak het rooster (grid) voor de kaarten
+            const grid = document.createElement('div');
+            grid.className = 'grid-container';
+
+            sectie.items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                // Content opbouwen
+                let htmlContent = `<h3>${item.naam}</h3><p>${item.desc}</p><div class="btn-container">`;
+                
+                if(item.website) {
+                    htmlContent += `<a href="${item.website}" class="knop" target="_blank" rel="noopener">Website bezoeken</a>`;
+                }
+                if(item.email) {
+                    const label = item.emailLabel ? item.emailLabel : "Contact opnemen";
+                    htmlContent += `<a href="mailto:${item.email}" class="knop">${label}</a>`;
+                }
+                
+                htmlContent += `</div>`;
+                card.innerHTML = htmlContent;
+                grid.appendChild(card);
+            });
+
+            // Voeg bij de laatste sectie de "toevoegen" knop toe
+            if(sectie.categorie === "Collectiviteitsvoordeel") {
+                const addCard = document.createElement('div');
+                addCard.className = 'card special';
+                addCard.innerHTML = `
+                    <h3>Vereniging toevoegen?</h3>
+                    <p>Indien u een vereniging mist, zijn we u erkentelijk voor uw hulp.</p>
+                    <div class="btn-container">
+                        <a href="https://www.nederlanders.fr/profiles/message/newFromProfile?screenName=3pjypz5h1ilpc&target=https%3A%2F%2Fwww.nederlanders.fr" class="knop" target="_blank">Stuur bericht naar Moderator</a>
+                    </div>
+                `;
+                grid.appendChild(addCard);
+            }
+
+            container.appendChild(grid);
+        });
+    }
+
+    // Zoekfunctie
+    function filterLijst() {
+        const input = document.getElementById('searchBar').value.toLowerCase();
+        const cards = document.getElementsByClassName('card');
+
+        for (let i = 0; i < cards.length; i++) {
+            const text = cards[i].innerText.toLowerCase();
+            if (text.includes(input)) {
+                cards[i].style.display = "flex";
+            } else {
+                cards[i].style.display = "none";
+            }
+        }
+    }
+
+    // Start de pagina
+    renderPage();
+</script>
+
+</body>
+</html>
